@@ -1,68 +1,33 @@
-package ladderLottery;
+package currentSource;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
 
-import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.Point2D;
+import edu.princeton.cs.algs4.StdDraw;
 
 public class Player {
-	int score = 0;// Each player starts with zero point.
-	int coin = 0;// Each player starts with zero coin.
-	Point2D oldPosition = null;
-	Point2D position;
+
+//    private static StdDraw std = new StdDraw();
+
+	int score = 0;
+	List<GridPixel> path = new ArrayList<>();
+	GridPixel currentPosition;
 	Color color;
-
+	
 	/**
-	 * Constructs a Plaayer by using position and color. We can assign coin and
-	 * score explicitly to the play if it changes.
+	 * Constructor to create a player using the user chosen starting
+	 * position and a randomized color
 	 * 
-	 * @param position cordinate position
-	 * @param color    color if the player
+	 * @param position
+	 * @param color
 	 */
-	public Player(Point2D position, Color color) {
-		this.position = position;
+	public Player(GridPixel position, Color color) {
+		currentPosition = position;
 		this.color = color;
+		this.path.add(position);
+		System.out.println(currentPosition);
 	}
-	
-	/**
-	 * Checks is the chose positin is valid.
-	 * @param current
-	 * @param chosen
-	 */
-	public boolean checkLadder(Point2D newPosition) {
-		if((position.y()-newPosition.y())>=0)
-			return true;
-		else return false;
-	}
-	/**
-	 * Updates the player's position.
-	 * 
-	 * @param p a Point2D
-	 * @return P a Point2D
-	 */
-	public Point2D DrawPlayer(Point2D newPosition) { // get a position from input and update player's position
-		if(checkLadder(newPosition))
-			oldPosition = position;
-			position = newPosition;
-		return position;
-	}
-
-	/**
-	 * Updates player's path.
-	 * @param current
-	 * @param destination
-	 * @return
-	 */
-	public Digraph DrawLadder(Point2D oldPosition, Point2D position) {
-		if(oldPosition == null||position == null) {
-			throw new NullPointerException();
-		}
-		return  null;
-	} 
-	
-	public void CoinDrawLadder(Point2D win) {
-		//TODO
-	}
-	
 	
 }

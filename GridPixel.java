@@ -22,26 +22,16 @@ public class GridPixel {
 	private int y;
 	private Point point;
 	private Color color;
-//	public static GameAreaMouseListener actionHandler = new GameAreaMouseListener();
 
 	public GridPixel (int r, int c, Color color) {
 		x = r*3 + 5;
 		y = c*3 + 25;
-//		x= r;
-//		y= c;
 		this.color = color;
 		point = new Point(x,y);
 		
 		StdDraw.setPenRadius(.002);
 		StdDraw.setPenColor(color);
 		StdDraw.filledSquare(x, y, 1.5);
-	}
-
-	/**
-	 * @return the color
-	 */
-	public Color getColor() {
-		return color;
 	}
 
 	/**
@@ -75,9 +65,6 @@ public class GridPixel {
 	@Override
 	public String toString() {
 		return "[" + getX() + ", " + getY() + "]";
-	}
-
-	public void addActionListener(ActionListener actionListener) {
 	}
 
 }

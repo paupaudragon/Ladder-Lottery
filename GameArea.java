@@ -28,128 +28,100 @@ import edu.princeton.cs.algs4.StdRandom;
  *
  */
 public class GameArea {
-
+	// initiate end and starting positions
+	public static int endPoint;
 	public static Point goal;
 	public static Point start;
 
-	public static int startPoint1 = 0;
-	public static int startPoint2 = 7;
-	public static int endPoint = 20;
-
-	public static int pathLengthP1 = 0;
-	public static int pathLengthP2 = 0;
-
-	static List<GridPixel> points = new ArrayList<GridPixel>();
-	//static List<GridPixel> goalPositions = new ArrayList<GridPixel>();
-	//static List<GridPixel> startPositions = new ArrayList<GridPixel>();
-
-	static ST<Integer, Point> vertices = new ST<>();
+	// holds all vertices on the grid
 	private static List<Point> ladderPoints = new ArrayList<Point>();
+	static ST<Integer, Point> vertices = new ST<>();
 
 	private static RectHV[] buttons = new RectHV[6];// 0:Next Round; 1: BFS; 2:DFS; 3:Dijkstra
 	public static RectHV[] playerPositions = new RectHV[15]; // to redraw players
 
-	public static Player player1 = new Player(new Point(0, -1), Color.CYAN, "1");
-	public static Player player2 = new Player(new Point(0, -1), Color.YELLOW, "2");
+	// initialize both players
+	public static Player player1 = new Player(Color.CYAN, "1");
+	public static Player player2 = new Player(Color.YELLOW, "2");
 	public static Player[] players = { player1, player2 };
 
 	public static int round = 1;
-//	public static int shortestPath = 1_000_000;// one million
 	public static boolean countinueRound = true;
 	private static JFrame frame;
 
-	/**********************************************************************************/
-	// pole x-values 8, 14, 20, 26, 32, 38, 44, 50, 56, 62, 68, 74, 80,8 6, 92
-
-	// 1 3 5 7 9 11 13 15 17 19 21 23 25 27 29
-
 	public static void main(String[] args) {
-
-	//	StdDraw.pause(1000);
-
+		// graph used for collecting vertices
 		In in = new In("src/tingting/Resources/intLadderGraph.txt");
 		Graph graph = new Graph(in);
-		
 
-		// mouse clicking area
+		// clickable button areas
 		buttons[0] = new RectHV(81, 15, 96, 21);// next round
 		buttons[1] = new RectHV(22, 4, 35, 11);// BFS
 		buttons[2] = new RectHV(43, 4, 54, 11);// DFS
 		buttons[3] = new RectHV(63, 4, 74, 11);// Dijkstra
-		
+
+		playRound(graph);
+	}
+
+	/**
+	 * Checks at the top of each round if the game is still active. If the current
+	 * round is 1, 2, or 3, draws a new goal point and players will take turns
+	 * traversing the graph
+	 * 
+	 * @param graph
+	 */
+	private static void playRound(Graph graph) {
 		while (round < 4) {
-//			turnToWinnerPage();
-//			GameConfig.EndGameScreen(player2, player1);
-//		for (round = 1; round < 4; round++) {
 			fillPoints(ladderPoints);
 			fillST(ladderPoints);
-			
 			GameConfig.drawGameArea();
 
 			goal = drawGoal();
 			int goalIndex = ladderPoints.indexOf(goal);
-
 			JOptionPane.showMessageDialog(frame, "Please choose an algorithm for Round" + round);
 
 			// beginning of a round
 			for (int i = 0; i < players.length; i++) {
-
-				player1.setCoin(0);
-				player2.setCoin(0);
 				start = generateStart();
 				int startIndex = ladderPoints.indexOf(start);
 
-				players[i].setCurrent(start);
+				Player.setCurrent(start);
 				playerMovement(graph, startIndex, goalIndex, players[i]);
 			}
 
 			MatchWinner(player1, player2);
-
-			System.out.println();
-			System.out.println();
-
 			StdDraw.pause(3000);
-//			player1.setCoin(0);
-//			player2.setCoin(0);
 			round++;
 			GameConfig.updateRound(round);
-		} 			
-//		StdDraw.text(50, 60, "That's the end of the game! And the winner is....");
-//		StdDraw.pause(3000);
-		GameConfig.EndGameScreen(player2, player1);
-
-
-//		turnToWinnerPage(round);
+		}
+		GameConfig.EndGameScreen(player1, player2);
 	}
 
 	/**
-	 * Animates the player's movement based on a rrandomly generated start position
-	 * and goal position.
 	 * 
-	 * @param graph      a graph
-	 * @param startIndex the index of start point in List laddersPoint
-	 * @param goalIndex  the index of goal in List laddersPoint
+	 * Assigns an algorithm to the provided player based on their selection in the
+	 * Game Area button section
+	 * 
+	 * @param graph      Graph used to create the path taken
+	 * @param startIndex starting position of the player
+	 * @param goalIndex  goal position to be reached
+	 * @param player     active Player
 	 */
 	public static void playerMovement(Graph graph, int startIndex, int goalIndex, Player player) {
-		while (!player.getCurrent().equals(goal)) {
+		while (!Player.getCurrent().equals(goal)) {
 			if (StdDraw.mousePressed()) {
 				Point2D p = new Point2D(StdDraw.mouseX(), StdDraw.mouseY());
 				if (buttons[1].contains(p)) {
-					// TODO BFS
 					Iterable<Point> Algorithm1 = Algorithms.BFSAlgorithm(vertices, graph, startIndex, goalIndex);
 					drawPath(Algorithm1, player);
 					player.setPathLength(Algorithms.getLocalPathLength());
-
-					// Testing
-					System.out.println("BFS: PathLength: " + player.getPathLength());
+					player.setCoin(Algorithms.getPlayerPoints());
 
 				} else if (buttons[2].contains(p)) {
 					Iterable<Point> Algorithm2 = Algorithms.DFSAlgorithm(vertices, graph, startIndex, goalIndex);
 					drawPath(Algorithm2, player);
 					player.setPathLength(Algorithms.getLocalPathLength());
-
-					// Testing
-					System.out.println("DFS: PathLength: " + player.getPathLength());
+					player.setCoin(Algorithms.getPlayerPoints());
 
 				} else if (buttons[3].contains(p)) {
 					In weightedIn = new In("src/tingting/Resources/WeightedGraph.txt");
@@ -157,36 +129,21 @@ public class GameArea {
 					Iterable<Point> Algorithm3 = Algorithms.Dijkstra(vertices, weightedGraph, startIndex, goalIndex);
 					drawPath(Algorithm3, player);
 					player.setPathLength(Algorithms.getLocalPathLength());
+					player.setCoin(Algorithms.getPlayerPoints());
 
-					// Testing
-					System.out.println("Dijkstra: PathLength: " + player.getPathLength());
 				} else {
 					continue;
 				}
 			}
 		}
 	}
-	
-	/**
-	 * Turns the game board page to the page that shows the winner.
-	 * 
-	 * @param round the number of the round
-	 */
-//	public static void turnToWinnerPage(int round) {	
-	public static void turnToWinnerPage() {	
-		while (true) {
-			if (StdDraw.mousePressed()) {
-				Point2D p = new Point2D(StdDraw.mouseX(), StdDraw.mouseY());
-				if (buttons[0].contains(p)) {
-					GameConfig.EndGameScreen(player1, player2);
-				}
-			}
-		}
-		
-	}
 
 	/**
-	 * @param Algorithm1
+	 * Determines the path taken by the player depending on the algorithm chosen and
+	 * draws the path in the Game Area
+	 * 
+	 * @param algor  Algorithm chosen to guide the user to the goal point
+	 * @param player Player who's path is being drawn
 	 */
 	public static void drawPath(Iterable<Point> algor, Player player) {
 		for (Point path : algor) {
@@ -194,14 +151,19 @@ public class GameArea {
 			StdDraw.setPenColor(StdDraw.LIGHT_GRAY);
 			StdDraw.filledCircle(path.getX(), path.getY(), 1.0);
 			StdDraw.show();
-			StdDraw.pause(400);
+			StdDraw.pause(100);
 			StdDraw.setPenColor(player.getColor());
 			StdDraw.filledCircle(path.getX(), path.getY(), 1.0);
 			StdDraw.show();
 		}
-		player.setCurrent(goal);
+		Player.setCurrent(goal);
 	}
 
+	/**
+	 * Randomly selects a new goal position each round
+	 * 
+	 * @return a Point to assign the goal
+	 */
 	public static Point drawGoal() {
 		endPoint = StdRandom.uniform(15, 30);
 		goal = vertices.get(endPoint);
@@ -210,14 +172,14 @@ public class GameArea {
 		StdDraw.filledRectangle(goal.x, goal.y, 1.5, 1.5);
 		StdDraw.show();
 
-		StdOut.println("goal position: " + goal); // test
 		return goal;
 	}
 
 	/**
-	 * Generates a random starting point for player at the top of the ladder.
+	 * Generates a random starting position for each player at the top of the
+	 * ladders
 	 * 
-	 * @return a gridPixel
+	 * @return a gridPixel to place the player and assign as their start position
 	 */
 	public static Point generateStart() {
 		int index = StdRandom.uniform(0, 14);
@@ -226,29 +188,40 @@ public class GameArea {
 	}
 
 	/**
-	 * Keeps track of how many round each player has won
+	 * Determines the winner of each round dependent on the length of their
+	 * respective paths traveled
 	 * 
-	 * @param players
+	 * @param players Both Players to access path length
+	 * 
 	 * @return the number of the player who won the round, 0 if it is a tie
 	 */
 	public static void MatchWinner(Player p1, Player p2) {
+		// calculate winner based on shortest path length
 		if (p2.getPathLength() > p1.getPathLength()) {
-			StdDraw.text(50, 60, "Player 1 won!");
 			player1.setScore(player1.getScore() + 1);
 		} else if (p2.getPathLength() < p1.getPathLength()) {
-			StdDraw.text(50, 60, "Player 2 won!");
 			player2.setScore(player2.getScore() + 1);
 		} else {
 			StdDraw.text(50, 60, "Tie!");
 		}
+
+		// calculate winner based on greatest number of coins
+		if (p2.getCoin() < p1.getCoin()) {
+			player1.setScore(player1.getScore() + 1);
+		} else if (p1.getCoin() < p2.getCoin()) {
+			player2.setScore(player2.getScore() + 1);
+		} else {
+			StdDraw.text(50, 60, "Tie!");
+		}
+
 		GameConfig.updatePlayerLabel(15, 18, player1.toString() + " Score: ", player1.getScore(), Color.CYAN);
 		GameConfig.updatePlayerLabel(40, 18, player2.toString() + " Score: ", player2.getScore(), Color.YELLOW);
 		StdDraw.show();
 		StdDraw.pause(3000);
 	}
-	
+
 	/**
-	 * Takes all the vertices from LadderPoints and attaches them all to a key.
+	 * Takes all the vertices from LadderPoints and assigns each to a key
 	 * 
 	 * @param <code>List</code> points
 	 */
@@ -256,9 +229,13 @@ public class GameArea {
 		for (int i = 0; i < ladderPoints.size(); i++) {
 			vertices.put(i, ladderPoints.get(i));
 		}
-
 	}
 
+	/**
+	 * Generates all vertices to be drawn on the graph
+	 * 
+	 * @param points
+	 */
 	public static void fillPoints(List<Point> points) {
 		// start points
 		points.add(0, new Point(8, 91));
@@ -404,22 +381,4 @@ public class GameArea {
 		points.add(124, new Point(92, 74));
 		points.add(125, new Point(92, 39));
 	}
-
-//	/**
-//	 * Asks whether or not the Player wants to use their coin
-//	 * 
-//	 * @return true if coin is used
-//	 */
-//	public boolean ChooseAlgoritm() {
-//		return false; // TODO
-//	}
-//
-//	/**
-//	 * Checking if the player has hit a coin or bomb and adding or subtracting the
-//	 * score. keeps track
-//	 * 
-//	 */
-//	public void coinsAndBombs() {
-//
-//	}
 }

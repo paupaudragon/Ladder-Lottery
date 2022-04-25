@@ -1,59 +1,46 @@
 package tingting;
 
 import java.awt.Color;
-//import java.util.ArrayList;
-//import java.util.List;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
-
-import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.StdDraw;
 
 /**
+ * 
  * Keeps track of different variables as well as holds the code for the
  * Introduction Screen and the End Game Screen.
  * 
- * @author madisonkonnick
- *
+ * @author Sam
+ * @author Maddie
+ * @author Tingting
+ * 
  */
-public class GameConfig
-{
+public class GameConfig {
 
 	public static int[][] grid = new int[31][24];
 	static List<GridPixel> PointOnPole = new ArrayList<GridPixel>();
-
-	public int ActiveRound;
-	public int TotalRounds;
-	public boolean CoinInPlay;
-	public int RoundsWon; // not sue what type this needs to be so int placeholder
-	private static RectHV[] buttons = new RectHV[4];// 0:Next Round; 1: BFS; 2:DFS; 3:Dijkstra
-
-	/**
-	 * used for testing
-	 * 
-	 * @param args
-	 */
-	public static void main(String[] args)
-	{
+	static List<GridPixel> points = new ArrayList<GridPixel>();
+	
+	public static void main(String[] args) {
 		StdDraw.setCanvasSize(1000, 800);
 		StdDraw.pause(2000);
-		
+
 		IntroScreen();
-		
-		while(true) {
-			if (StdDraw.isKeyPressed(KeyEvent.VK_ENTER)){
+
+		while (true) {
+			if (StdDraw.isKeyPressed(KeyEvent.VK_ENTER)) {
 				GameArea.main(args);
-		}}
+			}
+		}
 	}
 
 	/**
 	 * Screen shown at the beginning explaining the game, how to play, and the rules
-	 * of the game. game starts when the button is clicked or enter/return is hit.
+	 * of the game. Game starts when Enter is pressed.
 	 */
-	public static void IntroScreen()
-	{
+	public static void IntroScreen() {
 
 		StdDraw.setPenColor(StdDraw.BLACK);
 		StdDraw.filledRectangle(50, 50, 450, 455);
@@ -62,9 +49,9 @@ public class GameConfig
 		StdDraw.setScale(0, 100);
 		StdDraw.enableDoubleBuffering();
 		StdDraw.setPenColor(StdDraw.CYAN);
-		StdDraw.filledRectangle(49, 63, 40, 27);
+		StdDraw.filledRectangle(49, 63, 40, 31);
 		StdDraw.setPenColor(StdDraw.DARK_GRAY);
-		StdDraw.filledRectangle(49, 63, 39, 26);
+		StdDraw.filledRectangle(49, 63, 39, 30);
 
 		// Write the instructions and how to play
 		Font title = new Font("Sans Serif", Font.BOLD, 50);
@@ -77,49 +64,52 @@ public class GameConfig
 		StdDraw.text(49, 79, "Game Description:");
 		StdDraw.setPenColor(StdDraw.PINK);
 		StdDraw.setFont();
-		StdDraw.text(49, 76, "This is a game of luck with a twist. Each Player is trying to reach the hidden goal");
-		StdDraw.text(49, 74, " while avoiding Bombs and Coins. Each player chooses a way to traverse the graph.");
+		StdDraw.text(49, 76,
+				"This is a game of luck with a twist. The objective is for each player to reach the goal at the");
+		StdDraw.text(49, 74,
+				"bottom of the playing field while collecting coins along the way. Each player chooses a way");
+		StdDraw.text(49, 72, "to traverse the graph.");
+
 		StdDraw.setPenColor(StdDraw.CYAN);
 		StdDraw.setFont(subTitle);
-		StdDraw.text(49, 71, "How To Play:");
+		StdDraw.text(49, 69, "How To Play:");
 		StdDraw.setPenColor(StdDraw.PINK);
 		StdDraw.setFont();
-		StdDraw.text(49, 68, "Each Player places where they want to start. Then each Player chooses how to traverse");
 		StdDraw.text(49, 66,
-				"the ladders. There are a couple ways to traverse the graph. Through BFS, DFS or DijkstraSP.");
+				"Each player has a starting position randomly selected before they choose how to traverse");
 		StdDraw.text(49, 64,
-				"The Player who won the last round gets to choose first. There are coins and bombs hidden");
-		StdDraw.text(49, 62,
-				"along the path. When you cross a coin you gain points. When you hit a bomb you loose points.");
-		StdDraw.text(49, 60, "Whoever reaches the goal in the least amount of hops gains points. The winner is ");
-		StdDraw.text(49, 58, "determinded by who gains the most coins throught the rounds.");
+				"the ladders. There are a few ways graph traversals to choose from: BFS, DFS or DijkstraSP.");
+		StdDraw.text(49, 62, "Bombs and coins are hidden along the path that will effect your score each round.");
+		StdDraw.text(49, 60, "You earn points when you cross a path with a coin and lose points when you hit a bomb.");
+		StdDraw.text(49, 58, "At the end of each round, the player with the smallest number of moves wins a point and");
+		StdDraw.text(49, 56, "the player with the most coins collected wins a point. At the end of 3 rounds,");
+		StdDraw.text(49, 54, "the player with the most points wins the game.");
+
 		StdDraw.setPenColor(StdDraw.CYAN);
 		StdDraw.setFont(subTitle);
-		StdDraw.text(49, 55, "Rules:");
+		StdDraw.text(49, 51, "Rules:");
 		StdDraw.setPenColor(StdDraw.PINK);
 		StdDraw.setFont();
-		StdDraw.text(49, 52, "1. Tokens will cross any ladders that are traveling down.");
-		StdDraw.text(49, 50, "2. Each Player only gets one algorithm.");
-		StdDraw.text(49, 48, "3. Players cannot pick the same spot to start.");
+		StdDraw.text(49, 48, "1. Players take turns selecting an algorithm each round");
+		StdDraw.text(49, 46, "2. Algorithm selections can be repeated");
+		StdDraw.text(49, 44, "3. Scores will be calculated at the end of each round");
 		StdDraw.setPenColor(StdDraw.CYAN);
 		StdDraw.setFont(subTitle);
-		StdDraw.text(49, 45, "Press Enter to play.");
-		//StdDraw.text(49, 45, "Press your Mouse to play.");
-		StdDraw.text(49, 42, "Have Fun!");
+		StdDraw.text(49, 41, "Press Enter to play.");
+		StdDraw.text(49, 38, "Have Fun!");
 
 		StdDraw.setPenColor(StdDraw.PINK);
 		StdDraw.setFont();
-		StdDraw.text(49, 39, "Authors: Samantha Tilo, Tingting Zhou, Maddie Konnick");
+		StdDraw.text(49, 35, "Created by: Samantha Tilo, Tingting Zhou, Maddie Konnick");
 
 		StdDraw.show();
-		
+
 	}
 
 	/**
-	 * Draws ladders on the board connecting neighboring poles.
+	 * Draws ladders on the game board connecting neighboring poles.
 	 */
-	public static void generateLadders()
-	{
+	public static void generateLadders() {
 		StdDraw.setPenColor(StdDraw.RED);
 		// 0
 		StdDraw.line(86, 87, 92, 85);// 86-92
@@ -168,13 +158,10 @@ public class GameConfig
 	/**
 	 * Draws the canvas board for the game.
 	 */
-	public static void drawGameArea()
-	{
+	public static void drawGameArea() {
 		// setup of window and parameters
-		//StdDraw.setCanvasSize(1000, 800);
 		StdDraw.setScale(0, 100);
 		StdDraw.enableDoubleBuffering();
-
 		StdDraw.setPenColor(StdDraw.BLACK);
 		StdDraw.filledRectangle(50, 50, 450, 455);
 
@@ -185,27 +172,19 @@ public class GameConfig
 		StdDraw.text(49, 97, "Ladder Lottery");
 
 		// grid
-		for (int r = 0; r < grid.length; r++)
-		{
+		for (int r = 0; r < grid.length; r++) {
 			// draw grid system
-			for (int c = 0; c < grid[0].length; c++)
-			{
-				if ((r + 1) % 2 == 0 && c == 22)
-				{ // draw potential starting positions
+			for (int c = 0; c < grid[0].length; c++) {
+				if ((r + 1) % 2 == 0 && c == 22) { // draw potential starting positions
 					GridPixel pixel = new GridPixel(r, c, StdDraw.MAGENTA);
-					//GameArea.startPositions.add(pixel);
-					GameArea.points.add(pixel);
-				} else if ((r + 1) % 2 == 0 && c == 1)
-				{ // draw potential goal positions
+					points.add(pixel);
+				} else if ((r + 1) % 2 == 0 && c == 1) { // draw potential goal positions
 					GridPixel pixel = new GridPixel(r, c, StdDraw.GREEN);
-					//GameArea.goalPositions.add(pixel);
-					GameArea.points.add(pixel);
-				} else
-				{
+					points.add(pixel);
+				} else {
 					GridPixel pixel = new GridPixel(r, c, StdDraw.DARK_GRAY);
-					GameArea.points.add(pixel);
-					if ((r + 1) % 2 == 0)
-					{
+					points.add(pixel);
+					if ((r + 1) % 2 == 0) {
 						PointOnPole.remove(pixel);
 					}
 				}
@@ -214,8 +193,7 @@ public class GameConfig
 			// draw starting poles
 			StdDraw.setPenColor(StdDraw.RED);
 			StdDraw.setPenRadius(.005);
-			if ((r + 1) % 2 == 0)
-			{
+			if ((r + 1) % 2 == 0) {
 				StdDraw.line(r * 3 + 5, 91, r * 3 + 5, 30); // vertical pole
 			}
 
@@ -226,6 +204,9 @@ public class GameConfig
 		}
 	}
 
+	/**
+	 * Creates labels to track the active round and current player scores
+	 */
 	public static void drawStatsBoard() {
 		// Player labels
 		updatePlayerLabel(15, 18, "Player1 Score: ", GameArea.player1.getScore(), Color.CYAN);
@@ -234,15 +215,7 @@ public class GameConfig
 		// Round #
 		updateRound(GameArea.round);
 
-//		// Next Round
-//		StdDraw.setPenColor(StdDraw.WHITE);
-//		StdDraw.filledRectangle(89, 18, 7.5, 3.5);
-//		StdDraw.setPenColor(StdDraw.GRAY);
-//		StdDraw.filledRectangle(89, 18, 7, 3);
-//		StdDraw.setPenColor(StdDraw.WHITE);
-//		StdDraw.text(89, 18, "Next Round");
-		
-		//= = = Algorithm choices = = =
+		// = = = Algorithm choices = = =
 
 		// BFS
 		StdDraw.setPenColor(StdDraw.PINK);
@@ -269,15 +242,30 @@ public class GameConfig
 		StdDraw.text(69, 8, "Dijkstra");
 	}
 
+	/**
+	 * Updates the round label in the window
+	 * 
+	 * @param round
+	 */
 	public static void updateRound(int round) {
 		StdDraw.setPenColor(StdDraw.WHITE);
 		StdDraw.filledRectangle(69, 18, 7.5, 3.5);
 		StdDraw.setPenColor(StdDraw.GRAY);
 		StdDraw.filledRectangle(69, 18, 7, 3);
 		StdDraw.setPenColor(StdDraw.WHITE);
-		StdDraw.text(69, 18, "Round "+ round);
+		StdDraw.text(69, 18, "Round " + round);
 	}
 
+	/**
+	 * 
+	 * Updates the player label with their current score at the end of each round
+	 * 
+	 * @param x
+	 * @param y
+	 * @param str
+	 * @param score
+	 * @param color
+	 */
 	public static void updatePlayerLabel(int x, int y, String str, int score, Color color) {
 		StdDraw.setPenColor(color);
 		StdDraw.filledRectangle(x, y, 11.5, 3.5);
@@ -293,8 +281,7 @@ public class GameConfig
 	 * 
 	 * @param players
 	 */
-	public static void EndGameScreen(Player p1, Player p2)
-	{
+	public static void EndGameScreen(Player p1, Player p2) {
 		StdDraw.setScale(0, 100);
 		StdDraw.enableDoubleBuffering();
 
@@ -316,7 +303,7 @@ public class GameConfig
 		StdDraw.setFont(title);
 		StdDraw.text(49, 89, "GAME OVER");
 
-		if(p1.getScore()>p2.getScore()) {
+		if (p1.getScore() > p2.getScore()) {
 			// First Player
 			StdDraw.setPenColor(StdDraw.CYAN);
 			StdDraw.setFont(title);
@@ -324,13 +311,10 @@ public class GameConfig
 			StdDraw.setPenColor(StdDraw.PINK);
 			StdDraw.setFont(subTitle);
 			if (p1.getScore() == 1)
-				StdDraw.text(49, 74, "Player 1: "+ p1.getScore() + " win");
+				StdDraw.text(49, 74, "Player 1: " + p1.getScore() + " win");
 			else
-				StdDraw.text(49, 74, "Player 1: "+ p1.getScore() + " wins");
+				StdDraw.text(49, 74, "Player 1: " + p1.getScore() + " wins");
 
-//			StdDraw.text(49, 70, "Coins Hit: " + p1.getCoin());
-//			StdDraw.text(49, 66, "Bombs Hit: " + p1.getBomb());
-			
 			// Second Player
 			StdDraw.setPenColor(StdDraw.YELLOW);
 			StdDraw.setFont(title);
@@ -338,12 +322,10 @@ public class GameConfig
 			StdDraw.setPenColor(StdDraw.PINK);
 			StdDraw.setFont(subTitle);
 			if (p2.getScore() == 1)
-				StdDraw.text(49, 53, "Player 2: "+ p2.getScore() + " win");
+				StdDraw.text(49, 53, "Player 2: " + p2.getScore() + " win");
 			else
-				StdDraw.text(49, 53, "Player 2: "+ p2.getScore() + " wins");
-//			StdDraw.text(49, 49, "Coins Hit: " + p2.getCoin());
-//			StdDraw.text(49, 45, "Bombs Hit: " + p2.getBomb());
-		}else {
+				StdDraw.text(49, 53, "Player 2: " + p2.getScore() + " wins");
+		} else if (p1.getScore() < p2.getScore()) {
 			// First Player
 			StdDraw.setPenColor(StdDraw.CYAN);
 			StdDraw.setFont(title);
@@ -351,12 +333,10 @@ public class GameConfig
 			StdDraw.setPenColor(StdDraw.PINK);
 			StdDraw.setFont(subTitle);
 			if (p2.getScore() == 1)
-				StdDraw.text(49, 74, "Player 2: "+ p2.getScore() + " win");
+				StdDraw.text(49, 74, "Player 2: " + p2.getScore() + " win");
 			else
-				StdDraw.text(49, 74, "Player 2: "+ p2.getScore() + " wins");
-//			StdDraw.text(49, 70, "Coins Hit: " + p2.getCoin());
-//			StdDraw.text(49, 66, "Bombs Hit: " + p2.getBomb());
-			
+				StdDraw.text(49, 74, "Player 2: " + p2.getScore() + " wins");
+
 			// Second Player
 			StdDraw.setPenColor(StdDraw.YELLOW);
 			StdDraw.setFont(title);
@@ -364,13 +344,19 @@ public class GameConfig
 			StdDraw.setPenColor(StdDraw.PINK);
 			StdDraw.setFont(subTitle);
 			if (p1.getScore() == 1)
-				StdDraw.text(49, 53, "Player 1: "+ p1.getScore() + " win");
+				StdDraw.text(49, 53, "Player 1: " + p1.getScore() + " win");
 			else
-				StdDraw.text(49, 53, "Player 1: "+ p1.getScore() + " wins");
-//			StdDraw.text(49, 49, "Coins Hit: " + p1.getCoin());
-//			StdDraw.text(49, 45, "Bombs Hit: " + p1.getBomb());
+				StdDraw.text(49, 53, "Player 1: " + p1.getScore() + " wins");
+		} else {
+			StdDraw.setPenColor(StdDraw.YELLOW);
+			StdDraw.setFont(title);
+			StdDraw.text(49, 74, "It's a tie!");
+			StdDraw.setPenColor(StdDraw.PINK);
+			StdDraw.setFont(subTitle);
+			StdDraw.text(49, 53, "Congrats to both players!");
+
 		}
-		
+
 		StdDraw.show();
 	}
 
